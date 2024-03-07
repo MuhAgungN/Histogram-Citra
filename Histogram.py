@@ -2,35 +2,31 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import numpy as np
 
-def apply_histogram_operations(img, operation):
+def apply_histogram_operations(img, operation, value):
     # Splitting the image into channels
     blue, green, red = cv.split(img)
     
     # Applying the specified operation to each channel
-    blue = operation(blue)
-    green = operation(green)
-    red = operation(red)
+    blue = operation(blue, value)
+    green = operation(green, value)
+    red = operation(red, value)
     
     # Merging the channels back into a single image
     result_img = cv.merge([blue, green, red])
     
     return result_img
 
-def increase_brightness(channel):
-    # Example: Increase the brightness by adding 50 to each pixel value
-    return np.clip(channel + 50, 0, 255)
+def increase_brightness(channel, value):
+    return np.clip(channel + value, 0, 255)
 
-def decrease_brightness(channel):
-    # Example: Decrease the brightness by subtracting 50 from each pixel value
-    return np.clip(channel - 50, 0, 255)
+def decrease_brightness(channel, value):
+    return np.clip(channel - value, 0, 255)
 
-def multiply_brightness(channel):
-    # Example: Multiply the brightness by a factor of 1.5
-    return np.clip(channel * 50, 0, 255)
+def multiply_brightness(channel, value):
+    return np.clip(channel * value, 0, 255)
 
-def divide_brightness(channel):
-    # Example: Divide the brightness by a factor of 2
-    return np.clip(channel / 50, 0, 255)
+def divide_brightness(channel, value):
+    return np.clip(channel / value, 0, 255)
 
 # Load the image
 img = cv.imread("Aerial.jpg")
@@ -42,25 +38,28 @@ cv.imshow("Original Image", img)
 plt.hist(img.ravel(), 256, [0, 256])
 plt.show()
 
-# Apply and display histogram operations
-brighter_img = apply_histogram_operations(img, increase_brightness)
-cv.imshow("Increased Brightness", brighter_img)
-plt.hist(brighter_img.ravel(), 256, [0, 256])
-plt.show()
+# Input user untuk memilih operasi
+operation_choice = int(input("Pilih operasi (1: Penambahan, 2: Pengurangan, 3: Perkalian, 4: Pembagian): "))
+value = float(input("Masukkan nilai operasi: "))
 
-darker_img = apply_histogram_operations(img, decrease_brightness)
-cv.imshow("Decreased Brightness", darker_img)
-plt.hist(darker_img.ravel(), 256, [0, 256])
-plt.show()
+if operation_choice == 1:
+    result_img = apply_histogram_operations(img, increase_brightness, value)
+    operation_name = "Increased Brightness"
+elif operation_choice == 2:
+    result_img = apply_histogram_operations(img, decrease_brightness, value)
+    operation_name = "Decreased Brightness"
+elif operation_choice == 3:
+    result_img = apply_histogram_operations(img, multiply_brightness, value)
+    operation_name = "Multiplied Brightness"
+elif operation_choice == 4:
+    result_img = apply_histogram_operations(img, divide_brightness, value)
+    operation_name = "Divided Brightness"
+else:
+    print("Pilihan operasi tidak valid")
 
-multiplied_img = apply_histogram_operations(img, multiply_brightness)
-cv.imshow("Multiplied Brightness", multiplied_img)
-plt.hist(multiplied_img.ravel(), 256, [0, 256])
-plt.show()
-
-divided_img = apply_histogram_operations(img, divide_brightness)
-cv.imshow("Divided Brightness", divided_img)
-plt.hist(divided_img.ravel(), 256, [0, 256])
+# Display the result image and histogram
+cv.imshow(operation_name, result_img)
+plt.hist(result_img.ravel(), 256, [0, 256])
 plt.show()
 
 cv.waitKey(0)
